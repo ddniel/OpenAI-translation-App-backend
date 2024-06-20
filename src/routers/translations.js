@@ -19,7 +19,7 @@ router.post("/translations", async (req, res) => {
           content: `Translate this into ${language}: ${message}`,
         },
       ],
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       temperature: 0.3,
       max_tokens: 100,
       top_p: 1.0,
