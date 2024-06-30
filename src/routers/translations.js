@@ -8,7 +8,7 @@ const openai = new OpenAI({
 });
 
 router.post("/translations", async (req, res) => {
-  const { language, message } = req.body;
+  const { language, message, model } = req.body;
 
   console.log(language, message);
   try {
@@ -19,7 +19,7 @@ router.post("/translations", async (req, res) => {
           content: `Translate this into ${language}: ${message}`,
         },
       ],
-      model: "gpt-4o",
+      model: model,
       temperature: 0.3,
       max_tokens: 100,
       top_p: 1.0,
