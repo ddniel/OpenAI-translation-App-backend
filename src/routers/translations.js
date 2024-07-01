@@ -8,15 +8,25 @@ const openai = new OpenAI({
 });
 
 router.post("/translations", async (req, res) => {
-  const { language, message, model } = req.body;
+  const { action, language, message, model } = req.body;
 
-  console.log(language, message);
+  let query = "";
+
+  if (action == "translate") {
+    query = `Translate this into ${language}: ${message}. Just give me the translation.`;
+  } else if (action == "synonyms") {
+    query = `Give me synonyms for ${message} in ${language}. Just give me the synonyms.`;
+  } else if (action == "grammar") {
+    query = `Check my grammar in ${language}: ${message}.`;
+  }
+
+  console.log(action, model, language, message);
   try {
     const response = await openai.chat.completions.create({
       messages: [
         {
           role: "user",
-          content: `Translate this into ${language}: ${message}`,
+          content: query,
         },
       ],
       model: model,
