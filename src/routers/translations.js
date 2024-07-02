@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const OpenAI = require("openai");
 require("dotenv").config();
+const { addTranslation } = require("../controllers/translationsController");
 
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_KEY,
@@ -9,6 +10,7 @@ const openai = new OpenAI({
 
 router.post("/translations", async (req, res) => {
   const { language, message } = req.body;
+  addTranslation("testModel", language, message, "testTranslation");
 
   console.log(language, message);
   try {
