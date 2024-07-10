@@ -9,7 +9,6 @@ const openai = new OpenAI({
 });
 
 router.post("/translations", async (req, res) => {
-
   const { action, language, message, model } = req.body;
 
   let query = "";
@@ -40,6 +39,8 @@ router.post("/translations", async (req, res) => {
     });
 
     const translatedText = response.choices[0].message.content.trim();
+
+    await addTranslation(action, model, language, message, translatedText);
 
     res.status(200).json({ translatedText });
   } catch (error) {
