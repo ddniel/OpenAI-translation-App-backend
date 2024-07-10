@@ -1,13 +1,19 @@
 const pool = require("../../db");
 
-async function addTranslation(model, language, message, translatedText) {
+async function addTranslation(
+  action,
+  model,
+  language,
+  message,
+  translatedText
+) {
   try {
     const query = `
-      INSERT INTO translations (model, language, message, translatedtext)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO translations (action, model, language, message, result)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
-    const values = [model, language, message, translatedText];
+    const values = [action, model, language, message, translatedText];
 
     const result = await pool.query(query, values);
     return result.rows[0];
