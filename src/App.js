@@ -2,11 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const translations = require("./routers/translations");
+require("dotenv").config();
+const FRONT_END_URL = process.env.FRONT_END_URL;
 
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: FRONT_END_URL,
   })
 );
 
