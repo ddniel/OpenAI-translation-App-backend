@@ -2,6 +2,14 @@ const router = require("express").Router();
 const OpenAI = require("openai");
 require("dotenv").config();
 const { addTranslation } = require("../controllers/translationsController");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+//SETUP GEMINI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
+
+const gem = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+//SETUP OPENAI
 
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_KEY,
@@ -9,9 +17,10 @@ const openai = new OpenAI({
 });
 
 router.post("/translations", async (req, res) => {
-  const { action, language, message, model } = req.body;
+  const { action, language, message, model, version } = req.body;
 
   let query = "";
+  let result = "";
 
   if (action == "translate") {
     query = `Translate this into ${language}: ${message}. Just give me the translation.`;
@@ -21,8 +30,11 @@ router.post("/translations", async (req, res) => {
     query = `Check my grammar in ${language}: ${message}.`;
   }
 
-  console.log(action, model, language, message);
-  try {
+  if (model === "Gemini") {
+    const res = await gem.generateContent(query);
+    console.log(res.response.text());
+    result = res.response.text();
+  } else if (model === "ChatGPT") {
     const response = await openai.chat.completions.create({
       messages: [
         {
@@ -30,7 +42,7 @@ router.post("/translations", async (req, res) => {
           content: query,
         },
       ],
-      model: model,
+      model: version,
       temperature: 0.3,
       max_tokens: 100,
       top_p: 1.0,
@@ -38,11 +50,13 @@ router.post("/translations", async (req, res) => {
       presence_penalty: 0.0,
     });
 
-    const translatedText = response.choices[0].message.content.trim();
+    result = response.choices[0].message.content.trim();
+  }
 
-    await addTranslation(action, model, language, message, translatedText);
+  try {
+    await addTranslation(action, model, version, language, message, result);
 
-    res.status(200).json({ translatedText });
+    res.status(200).json({ result });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: "Internal server error" });
