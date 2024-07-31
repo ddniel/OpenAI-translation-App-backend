@@ -3,6 +3,7 @@ const OpenAI = require("openai");
 require("dotenv").config();
 const { addTranslation } = require("../controllers/translationsController");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const deepl = require("deepl-node");
 
 //SETUP GEMINI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
@@ -15,6 +16,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_KEY,
   dangerouslyAllowBrowser: true, // This is the default and can be omitted
 });
+
+//SETUP DEEPL
+const translator = new deepl.Translator(process.env.DEEPL_KEY);
 
 router.post("/translations", async (req, res) => {
   const { action, language, message, model, version } = req.body;
@@ -51,6 +55,23 @@ router.post("/translations", async (req, res) => {
     });
 
     result = response.choices[0].message.content.trim();
+  } else if (model === "Deepl") {
+    const lanList = {
+      English: "en-US",
+      Spanish: "es",
+      French: "fr",
+      Hindi: "hu",
+      Japanese: "ja",
+    };
+    console.log(language);
+    console.log(lanList[language]);
+    const res = await translator.translateText(
+      message,
+      null,
+      lanList[language]
+    );
+
+    result = res.text;
   }
 
   try {
