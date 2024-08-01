@@ -63,6 +63,7 @@ router.post("/translations", async (req, res) => {
       Hindi: "hu",
       Japanese: "ja",
     };
+
     console.log(language);
     console.log(lanList[language]);
     const res = await translator.translateText(
